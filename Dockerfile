@@ -21,4 +21,3 @@ COPY --from=build /build/importcsv /opt/app/
 RUN chmod +x -R /opt/app/
 
 CMD /opt/app/api
-# ENTRYPOINT ["/opt/app/entrypoint.sh"]

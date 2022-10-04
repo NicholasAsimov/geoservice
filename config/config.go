@@ -9,7 +9,7 @@ import (
 type Configuration struct {
 	Server struct {
 		Addr string `default:"localhost"`
-		Port int    `default:"5000"`
+		Port string `default:"5000"`
 	}
 
 	DB struct {
