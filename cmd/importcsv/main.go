@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime/pprof"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -18,6 +17,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	flag.Usage = config.Usage
 	flag.Parse()
 
@@ -32,12 +33,15 @@ func main() {
 		log = log.Output(zerolog.NewConsoleWriter())
 	}
 
-	db, err := pgx.Connect(context.Background(), config.DSN())
+	db, err := pgx.Connect(ctx, config.DSN())
 	if err != nil {
 		log.Error().Err(err).Msg("can't connect to database")
 		return
 	}
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
+
+	s := store.New(db)
+	// TODO migrate func to create table
 
 	// if err = model.MigrateDB(db); err != nil {
 	// 	log.Error().Err(err).Msg("can't migrate database")
@@ -57,36 +61,25 @@ func main() {
 
 	parseStart := time.Now()
 	records, skipped, err := csvparse.ParseCSV(file, validate)
-	parseTook := time.Since(parseStart)
 	if err != nil {
 		log.Error().Err(err).Msg("can't parse csv file")
 		return
 	}
+	parseTook := time.Since(parseStart)
 
-	//  TODO move to store
 	dbStart := time.Now()
-	copyCount, err := db.CopyFrom(
-		context.Background(),
-		pgx.Identifier{"geo_records"},
-		[]string{"ip_address", "country_code", "country", "city", "latitude", "longitude", "mystery_value"},
-		store.CopyFromRecords(records),
-	)
-	dbTook := time.Since(dbStart)
+	err = s.UpsertRecords(ctx, records)
 	if err != nil {
 		log.Error().Err(err).Msg("can't save records in db")
 		return
 	}
+	dbTook := time.Since(dbStart)
 
 	log.Info().
 		Int("records", len(records)+skipped).
 		Int("accepted", len(records)).
 		Int("skipped", skipped).
-		Int64("copy_count", copyCount).
 		Str("parse_took", parseTook.String()).
 		Str("db_took", dbTook.String()).
 		Msg("import finished")
-
-	f, _ := os.Create("heap_profile")
-	pprof.WriteHeapProfile(f)
-	f.Close()
 }
