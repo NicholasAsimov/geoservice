@@ -5,16 +5,16 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog"
 
-	_ "net/http/pprof"
-
 	"github.com/nicholasasimov/findhotel-assignment/config"
 	"github.com/nicholasasimov/findhotel-assignment/csvparse"
 	"github.com/nicholasasimov/findhotel-assignment/model"
+	"github.com/nicholasasimov/findhotel-assignment/store"
 )
 
 func main() {
@@ -63,20 +63,13 @@ func main() {
 		return
 	}
 
-	// note: usually would be implemented in a store package
-
-	rowsToInsert := [][]interface{}{}
-	for i := 0; i < len(records); i++ {
-		row := []interface{}{records[i].IPAddress.String(), records[i].CountryCode, records[i].Country, records[i].City, records[i].Latitude, records[i].Longitude, records[i].MysteryValue}
-		rowsToInsert = append(rowsToInsert, row)
-	}
-
+	//  TODO move to store
 	dbStart := time.Now()
 	copyCount, err := db.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"geo_records"},
 		[]string{"ip_address", "country_code", "country", "city", "latitude", "longitude", "mystery_value"},
-		pgx.CopyFromRows(rowsToInsert),
+		store.CopyFromRecords(records),
 	)
 	dbTook := time.Since(dbStart)
 	if err != nil {
@@ -92,6 +85,8 @@ func main() {
 		Str("parse_took", parseTook.String()).
 		Str("db_took", dbTook.String()).
 		Msg("import finished")
-	// http.ListenAndServe("localhost:8080", nil)
-	// return
+
+	f, _ := os.Create("heap_profile")
+	pprof.WriteHeapProfile(f)
+	f.Close()
 }
