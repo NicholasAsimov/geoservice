@@ -1,15 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+
+	_ "net/http/pprof"
 
 	"github.com/nicholasasimov/findhotel-assignment/config"
 	"github.com/nicholasasimov/findhotel-assignment/csvparse"
@@ -31,18 +32,17 @@ func main() {
 		log = log.Output(zerolog.NewConsoleWriter())
 	}
 
-	db, err := gorm.Open(postgres.Open(config.DSN()), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
+	db, err := pgx.Connect(context.Background(), config.DSN())
 	if err != nil {
 		log.Error().Err(err).Msg("can't connect to database")
 		return
 	}
+	defer db.Close(context.Background())
 
-	if err = model.MigrateDB(db); err != nil {
-		log.Error().Err(err).Msg("can't migrate database")
-		return
-	}
+	// if err = model.MigrateDB(db); err != nil {
+	// 	log.Error().Err(err).Msg("can't migrate database")
+	// 	return
+	// }
 
 	file, err := os.Open(config.Config.Importer.Filepath)
 	if err != nil {
@@ -55,17 +55,31 @@ func main() {
 		return r.IPAddress.IsValid() && r.City != "" && r.Country != "" && r.CountryCode != ""
 	}
 
-	start := time.Now()
+	parseStart := time.Now()
 	records, skipped, err := csvparse.ParseCSV(file, validate)
-	took := time.Since(start)
+	parseTook := time.Since(parseStart)
 	if err != nil {
 		log.Error().Err(err).Msg("can't parse csv file")
 		return
 	}
 
 	// note: usually would be implemented in a store package
-	result := db.Save(records[0:100])
-	if err := result.Error; err != nil {
+
+	rowsToInsert := [][]interface{}{}
+	for i := 0; i < len(records); i++ {
+		row := []interface{}{records[i].IPAddress.String(), records[i].CountryCode, records[i].Country, records[i].City, records[i].Latitude, records[i].Longitude, records[i].MysteryValue}
+		rowsToInsert = append(rowsToInsert, row)
+	}
+
+	dbStart := time.Now()
+	copyCount, err := db.CopyFrom(
+		context.Background(),
+		pgx.Identifier{"geo_records"},
+		[]string{"ip_address", "country_code", "country", "city", "latitude", "longitude", "mystery_value"},
+		pgx.CopyFromRows(rowsToInsert),
+	)
+	dbTook := time.Since(dbStart)
+	if err != nil {
 		log.Error().Err(err).Msg("can't save records in db")
 		return
 	}
@@ -74,6 +88,10 @@ func main() {
 		Int("records", len(records)+skipped).
 		Int("accepted", len(records)).
 		Int("skipped", skipped).
-		Str("took", took.String()).
+		Int64("copy_count", copyCount).
+		Str("parse_took", parseTook.String()).
+		Str("db_took", dbTook.String()).
 		Msg("import finished")
+	// http.ListenAndServe("localhost:8080", nil)
+	// return
 }
