@@ -31,13 +31,19 @@ func main() {
 
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatalf("can't open csv file: %s", err)
+		log.Printf("can't open csv file: %s", err)
+		return
 	}
 	defer file.Close()
 
-	records, skipped, err := ParseCSV(file)
+	validate := func(r Record) bool {
+		return r.IPAddress.IsValid() && r.City != "" && r.Country != "" && r.CountryCode != ""
+	}
+
+	records, skipped, err := ParseCSV(file, validate)
 	if err != nil {
-		log.Fatalf("can't parse csv file: %s", err)
+		log.Printf("can't parse csv file: %s", err)
+		return
 	}
 
 	println(skipped + len(records))
@@ -48,8 +54,8 @@ func main() {
 
 // ParseCSV parses the CSV content from the io.Reader until EOF, returning
 // successfully parsed records and the number of skipped records.
-// It validates each record in a streaming manner, discarding invalid records using validateFunc.
-func ParseCSV(r io.Reader) ([]Record, int, error) {
+// It validates each record in a streaming manner using validateFunc.
+func ParseCSV(r io.Reader, validateFunc func(Record) bool) ([]Record, int, error) {
 	dec, err := csvutil.NewDecoder(csvReader(r))
 	if err != nil {
 		return nil, 0, fmt.Errorf("can't create csv decoder: %w", err)
@@ -65,9 +71,7 @@ func ParseCSV(r io.Reader) ([]Record, int, error) {
 			break
 		}
 
-		// note: additional validation could be implemented depending on the
-		// requirements, e.g. validating CountryCode/Country/City
-		if err != nil || !record.IPAddress.IsValid() {
+		if err != nil || !validateFunc(record) {
 			skipped += 1
 			continue
 		}
