@@ -39,6 +39,11 @@ func main() {
 		return
 	}
 
+	if err = model.MigrateDB(db); err != nil {
+		log.Error().Err(err).Msg("can't migrate database")
+		return
+	}
+
 	file, err := os.Open(config.Config.Importer.Filepath)
 	if err != nil {
 		log.Error().Err(err).Msg("can't open csv file")
@@ -46,7 +51,7 @@ func main() {
 	}
 	defer file.Close()
 
-	validate := func(r model.Record) bool {
+	validate := func(r model.GeoRecord) bool {
 		return r.IPAddress.IsValid() && r.City != "" && r.Country != "" && r.CountryCode != ""
 	}
 
@@ -55,6 +60,13 @@ func main() {
 	took := time.Since(start)
 	if err != nil {
 		log.Error().Err(err).Msg("can't parse csv file")
+		return
+	}
+
+	// note: usually would be implemented in a store package
+	result := db.Save(records[0:100])
+	if err := result.Error; err != nil {
+		log.Error().Err(err).Msg("can't save records in db")
 		return
 	}
 
