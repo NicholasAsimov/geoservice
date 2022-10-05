@@ -6,6 +6,7 @@ require (
 	github.com/georgysavva/scany/v2 v2.0.0-alpha.2
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang-migrate/migrate/v4 v4.15.2
+	github.com/google/go-cmp v0.5.9
 	github.com/jackc/pgx/v5 v5.0.1
 	github.com/jszwec/csvutil v1.7.1
 	github.com/kelseyhightower/envconfig v1.4.0

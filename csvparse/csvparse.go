@@ -47,5 +47,6 @@ func ParseCSV(r io.Reader, validateFunc func(model.GeoRecord) bool) ([]model.Geo
 func csvReader(in io.Reader) *csv.Reader {
 	r := csv.NewReader(in)
 	r.LazyQuotes = true
+	r.TrimLeadingSpace = true
 	return r
 }
