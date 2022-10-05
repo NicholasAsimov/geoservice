@@ -14,7 +14,7 @@ type Configuration struct {
 
 	DB struct {
 		Host     string `default:"localhost"`
-		Port     int    `default:"5433"`
+		Port     int    `default:"5432"`
 		Name     string `default:"findhotel"`
 		User     string `default:"findhotel"`
 		Password string `default:"findhotel"`

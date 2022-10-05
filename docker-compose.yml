@@ -1,17 +1,26 @@
 version: "3.9"
 
-# TODO: maybe importcsv as a service
 services:
   postgres:
     image: "postgres:14"
     ports:
-      - "5433:5432"
+      - "5432:5432"
     restart: always
     environment: 
       POSTGRES_USER: findhotel
       POSTGRES_PASSWORD: findhotel
     volumes:
       - data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    restart: always
+    depends_on: [postgres]
+    environment:
+      FINDHOTEL_DB_HOST: postgres
+      FINDHOTEL_SERVER_ADDR: 0.0.0.0
 
 volumes:
   data: {}
