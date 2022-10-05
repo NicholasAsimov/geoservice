@@ -23,7 +23,7 @@ func New(db *pgx.Conn) *Store {
 func (s *Store) UpsertRecords(ctx context.Context, records []model.GeoRecord) error {
 	copyCount, err := s.DB.CopyFrom(
 		ctx,
-		pgx.Identifier{"geo_records"},
+		pgx.Identifier{"georecords"},
 		[]string{"ip_address", "country_code", "country", "city", "latitude", "longitude", "mystery_value"},
 		CopyFromRecords(records),
 	)
@@ -41,7 +41,7 @@ func (s *Store) UpsertRecords(ctx context.Context, records []model.GeoRecord) er
 func (s *Store) GetRecord(ctx context.Context, addr netip.Addr) (model.GeoRecord, error) {
 	var record model.GeoRecord
 
-	err := pgxscan.Get(ctx, s.DB, &record, `SELECT * FROM geo_records WHERE ip_address = $1`, addr.String())
+	err := pgxscan.Get(ctx, s.DB, &record, `SELECT * FROM georecords WHERE ip_address = $1`, addr.String())
 	if err != nil {
 		return record, fmt.Errorf("can't query db: %w", err)
 	}

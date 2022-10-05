@@ -41,12 +41,10 @@ func main() {
 	defer db.Close(ctx)
 
 	s := store.New(db)
-	// TODO migrate func to create table
-
-	// if err = model.MigrateDB(db); err != nil {
-	// 	log.Error().Err(err).Msg("can't migrate database")
-	// 	return
-	// }
+	if err = store.MigrateDB(db); err != nil {
+		log.Error().Err(err).Msg("can't migrate database")
+		return
+	}
 
 	file, err := os.Open(config.Config.Importer.Filepath)
 	if err != nil {

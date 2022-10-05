@@ -44,7 +44,11 @@ func main() {
 	}
 	defer db.Close(ctx)
 
-	// TODO migrate func to create table
+	if err = store.MigrateDB(db); err != nil {
+		log.Error().Err(err).Msg("can't migrate database")
+		return
+	}
+
 	s := server.New(log, db, store.New(db))
 
 	r := chi.NewRouter()
