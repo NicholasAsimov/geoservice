@@ -53,24 +53,32 @@ func main() {
 	}
 	defer file.Close()
 
+	// note: since validation (business) logic is separated from parsing it can
+	// be, for example, be configurable by external configuration.
 	validate := func(r model.GeoRecord) bool {
 		return r.IPAddress.IsValid() && r.City != "" && r.Country != "" && r.CountryCode != ""
 	}
 
+	log.Info().Str("file", file.Name()).Msg("parsing file")
 	parseStart := time.Now()
+
 	records, skipped, err := csvparse.ParseCSV(file, validate)
 	if err != nil {
 		log.Error().Err(err).Msg("can't parse csv file")
 		return
 	}
+
 	parseTook := time.Since(parseStart)
 
+	log.Info().Int("records", len(records)).Msg("persisting to db")
 	dbStart := time.Now()
+
 	err = s.UpsertRecords(ctx, records)
 	if err != nil {
 		log.Error().Err(err).Msg("can't save records in db")
 		return
 	}
+
 	dbTook := time.Since(dbStart)
 
 	log.Info().
