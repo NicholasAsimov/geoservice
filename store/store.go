@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/netip"
+	"strings"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
@@ -19,16 +20,37 @@ func New(db *pgx.Conn) *Store {
 	return &Store{DB: db}
 }
 
-// FIXME copy to temp table then upsert https://github.com/jackc/pgx/issues/992
 func (s *Store) UpsertRecords(ctx context.Context, records []model.GeoRecord) error {
-	copyCount, err := s.DB.CopyFrom(
+	columns := []string{"ip_address", "country_code", "country", "city", "latitude", "longitude", "mystery_value"}
+
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("can't start transaction: %w", err)
+	}
+
+	_, err = tx.Exec(ctx, `CREATE TEMPORARY TABLE _temp_upsert_georecords (LIKE georecords INCLUDING ALL) ON COMMIT DROP`)
+	if err != nil {
+		return fmt.Errorf("can't create temp table: %w", err)
+	}
+
+	copyCount, err := tx.CopyFrom(
 		ctx,
-		pgx.Identifier{"georecords"},
-		[]string{"ip_address", "country_code", "country", "city", "latitude", "longitude", "mystery_value"},
+		pgx.Identifier{"_temp_upsert_georecords"},
+		columns,
 		CopyFromRecords(records),
 	)
 	if err != nil {
 		return fmt.Errorf("can't copy to temp table: %w", err)
+	}
+
+	_, err = tx.Exec(ctx, `INSERT INTO georecords SELECT * FROM _temp_upsert_georecords ON CONFLICT (ip_address) DO UPDATE SET `+buildSetSQL(columns))
+	if err != nil {
+		return fmt.Errorf("can't copy from temp table to actual table: %w", err)
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("can't commit transaction: %w", err)
 	}
 
 	if copyCount != int64(len(records)) {
@@ -36,6 +58,14 @@ func (s *Store) UpsertRecords(ctx context.Context, records []model.GeoRecord) er
 	}
 
 	return nil
+}
+
+func buildSetSQL(columns []string) string {
+	var out string
+	for _, column := range columns {
+		out += fmt.Sprintf("%s=EXCLUDED.%s, ", column, column)
+	}
+	return strings.TrimSuffix(out, ", ")
 }
 
 func (s *Store) GetRecord(ctx context.Context, addr netip.Addr) (model.GeoRecord, error) {
