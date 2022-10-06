@@ -1,1 +1,53 @@
 # findhotel-assignment
+
+## Running
+
+### Dependencies and API server
+
+`docker-compose up` will start a postgres DB container (mapped to local port 5432) and the API
+server (mapped to local port 5000).
+
+
+### CSV importer
+`go run ./cmd/importcsv` will start the import process (by default using csv file `data_dump.csv` in the current directory).
+
+
+## Notable things
+1. csv parsing logic is separated from validation (business) logic by passing in "validationFunc" closure
+
+2. csv parsing is streaming and doesn't allocate extra memory by doing all the work in a single loop
+
+3. migrations are done properly and are embedded into the binary using Go 1.16 embed library so it's
+   still a single binary distribution
+
+4. very fast insertion into the database by using postgres' native COPY FROM command. The rows are
+   being quickly inserted into a temporary table and then the upsert is performed from the temporary
+   table to the actual one, of course in a single transaction (see store/store.go: UpsertRecords
+   function).
+   This database insertion also doesn't allocate additional memory, as it would be in case of using
+   GORM v2, for example, because it would prepare a huge INSERT/UPDATE statement for all 1M rows.
+   This is achieved by implementing pgx CopyFromSource interface for GeoRecord type to transform
+   application type to db type on the fly (see store/pgxutil.go: CopyFromRecords function).
+
+5. configuration is done via env variables and all the default values are correctly set for local
+   development, so there's no requirement to specify any configuration, only as needed. You can
+   check all available configuration parameters by checking the help:
+```
+> go run ./cmd/api -h
+
+This application is configured via the environment. The following environment
+variables can be used:
+
+KEY                            TYPE             DEFAULT            REQUIRED    DESCRIPTION
+FINDHOTEL_SERVER_ADDR          String           localhost
+FINDHOTEL_SERVER_PORT          String           5000
+FINDHOTEL_DB_HOST              String           localhost
+FINDHOTEL_DB_PORT              Integer          5432
+FINDHOTEL_DB_NAME              String           findhotel
+FINDHOTEL_DB_USER              String           findhotel
+FINDHOTEL_DB_PASSWORD          String           findhotel
+FINDHOTEL_DB_SSL               String           disable
+FINDHOTEL_IMPORTER_FILEPATH    String           ./data_dump.csv
+FINDHOTEL_LOGLEVEL             String           debug
+FINDHOTEL_PRETTYLOG            True or False    true
+```
