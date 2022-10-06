@@ -7,7 +7,6 @@
 `docker-compose up` will start a postgres DB container (mapped to local port 5432) and the API
 server (mapped to local port 5000).
 
-
 ### CSV importer
 `go run ./cmd/importcsv` will start the import process (by default using csv file `data_dump.csv` in the current directory).
 
@@ -50,4 +49,38 @@ FINDHOTEL_DB_SSL               String           disable
 FINDHOTEL_IMPORTER_FILEPATH    String           ./data_dump.csv
 FINDHOTEL_LOGLEVEL             String           debug
 FINDHOTEL_PRETTYLOG            True or False    true
+```
+
+## File structure
+```
+├── cmd
+│   ├── api
+│   │   └── main.go
+│   └── importcsv
+│       └── main.go
+├── config
+│   └── config.go
+├── csvparse
+│   ├── csvparse.go
+│   └── csvparse_test.go
+├── model
+│   └── model.go
+├── resources
+│   ├── sql
+│   │   ├── 000001_create_georecords_table.down.sql
+│   │   └── 000001_create_georecords_table.up.sql
+│   └── embed.go
+├── server
+│   ├── routes.go
+│   └── server.go
+├── store
+│   ├── migrate.go
+│   ├── pgxutil.go
+│   ├── store.go
+│   └── store_test.go
+├── docker-compose.yml
+├── Dockerfile
+├── go.mod
+├── go.sum
+└── README.md
 ```
