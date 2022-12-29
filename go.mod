@@ -1,4 +1,4 @@
-module github.com/nicholasasimov/findhotel-assignment
+module github.com/nicholasasimov/geoservice
 
 go 1.19
 

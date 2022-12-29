@@ -7,8 +7,8 @@ services:
       - "5432:5432"
     restart: always
     environment: 
-      POSTGRES_USER: findhotel
-      POSTGRES_PASSWORD: findhotel
+      POSTGRES_USER: geoservice
+      POSTGRES_PASSWORD: geoservice
     volumes:
       - data:/var/lib/postgresql/data
 
@@ -19,8 +19,8 @@ services:
     restart: always
     depends_on: [postgres]
     environment:
-      FINDHOTEL_DB_HOST: postgres
-      FINDHOTEL_SERVER_ADDR: 0.0.0.0
+      GEOSERVICE_DB_HOST: postgres
+      GEOSERVICE_SERVER_ADDR: 0.0.0.0
 
 volumes:
   data: {}

@@ -15,9 +15,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog"
 
-	"github.com/nicholasasimov/findhotel-assignment/config"
-	"github.com/nicholasasimov/findhotel-assignment/server"
-	"github.com/nicholasasimov/findhotel-assignment/store"
+	"github.com/nicholasasimov/geoservice/config"
+	"github.com/nicholasasimov/geoservice/server"
+	"github.com/nicholasasimov/geoservice/store"
 )
 
 func main() {

@@ -15,9 +15,9 @@ type Configuration struct {
 	DB struct {
 		Host     string `default:"localhost"`
 		Port     int    `default:"5432"`
-		Name     string `default:"findhotel"`
-		User     string `default:"findhotel"`
-		Password string `default:"findhotel"`
+		Name     string `default:"geoservice"`
+		User     string `default:"geoservice"`
+		Password string `default:"geoservice"`
 		SSL      string `default:"disable"`
 	}
 
@@ -31,7 +31,7 @@ type Configuration struct {
 
 var Config Configuration
 
-const prefix = "findhotel"
+const prefix = "geoservice"
 
 func Init() error {
 	return envconfig.Process(prefix, &Config)

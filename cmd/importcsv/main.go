@@ -10,10 +10,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog"
 
-	"github.com/nicholasasimov/findhotel-assignment/config"
-	"github.com/nicholasasimov/findhotel-assignment/csvparse"
-	"github.com/nicholasasimov/findhotel-assignment/model"
-	"github.com/nicholasasimov/findhotel-assignment/store"
+	"github.com/nicholasasimov/geoservice/config"
+	"github.com/nicholasasimov/geoservice/csvparse"
+	"github.com/nicholasasimov/geoservice/model"
+	"github.com/nicholasasimov/geoservice/store"
 )
 
 func main() {

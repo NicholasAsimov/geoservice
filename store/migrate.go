@@ -8,7 +8,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/nicholasasimov/findhotel-assignment/resources"
+	"github.com/nicholasasimov/geoservice/resources"
 )
 
 func MigrateDB(db *pgx.Conn) error {

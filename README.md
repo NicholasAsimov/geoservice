@@ -1,4 +1,4 @@
-# findhotel-assignment
+# geoservice
 
 ## Running
 
@@ -38,17 +38,17 @@ This application is configured via the environment. The following environment
 variables can be used:
 
 KEY                            TYPE             DEFAULT            REQUIRED    DESCRIPTION
-FINDHOTEL_SERVER_ADDR          String           localhost
-FINDHOTEL_SERVER_PORT          String           5000
-FINDHOTEL_DB_HOST              String           localhost
-FINDHOTEL_DB_PORT              Integer          5432
-FINDHOTEL_DB_NAME              String           findhotel
-FINDHOTEL_DB_USER              String           findhotel
-FINDHOTEL_DB_PASSWORD          String           findhotel
-FINDHOTEL_DB_SSL               String           disable
-FINDHOTEL_IMPORTER_FILEPATH    String           ./data_dump.csv
-FINDHOTEL_LOGLEVEL             String           debug
-FINDHOTEL_PRETTYLOG            True or False    true
+GEOSERVICE_SERVER_ADDR          String           localhost
+GEOSERVICE_SERVER_PORT          String           5000
+GEOSERVICE_DB_HOST              String           localhost
+GEOSERVICE_DB_PORT              Integer          5432
+GEOSERVICE_DB_NAME              String           geoservice
+GEOSERVICE_DB_USER              String           geoservice
+GEOSERVICE_DB_PASSWORD          String           geoservice
+GEOSERVICE_DB_SSL               String           disable
+GEOSERVICE_IMPORTER_FILEPATH    String           ./data_dump.csv
+GEOSERVICE_LOGLEVEL             String           debug
+GEOSERVICE_PRETTYLOG            True or False    true
 ```
 
 ## File structure

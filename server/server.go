@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog"
 
-	"github.com/nicholasasimov/findhotel-assignment/store"
+	"github.com/nicholasasimov/geoservice/store"
 )
 
 type Server struct {

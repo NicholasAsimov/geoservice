@@ -9,7 +9,7 @@ import (
 	"github.com/jszwec/csvutil"
 	"golang.org/x/exp/maps"
 
-	"github.com/nicholasasimov/findhotel-assignment/model"
+	"github.com/nicholasasimov/geoservice/model"
 )
 
 // ParseCSV parses the CSV content from the io.Reader until EOF, returning

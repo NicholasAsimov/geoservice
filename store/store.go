@@ -9,7 +9,7 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/nicholasasimov/findhotel-assignment/model"
+	"github.com/nicholasasimov/geoservice/model"
 )
 
 type Store struct {

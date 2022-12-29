@@ -3,7 +3,7 @@ package store
 import (
 	"github.com/jackc/pgx/v5"
 
-	"github.com/nicholasasimov/findhotel-assignment/model"
+	"github.com/nicholasasimov/geoservice/model"
 )
 
 // CopyFromRecords allows pgx to directly copy GeoRecord struct without

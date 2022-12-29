@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/nicholasasimov/findhotel-assignment/csvparse"
-	"github.com/nicholasasimov/findhotel-assignment/model"
+	"github.com/nicholasasimov/geoservice/csvparse"
+	"github.com/nicholasasimov/geoservice/model"
 )
 
 func TestParseCSV(t *testing.T) {
