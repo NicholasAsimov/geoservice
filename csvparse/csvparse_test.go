@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/nicholasasimov/geoservice/csvparse"
 	"github.com/nicholasasimov/geoservice/model"
@@ -78,6 +79,9 @@ func TestParseCSV(t *testing.T) {
 
 	opts := []cmp.Option{
 		cmp.Comparer(func(a, b netip.Addr) bool { return a.String() == b.String() }),
+		cmpopts.SortSlices(func(a, b model.GeoRecord) bool {
+			return a.IPAddress.Less(b.IPAddress)
+		}),
 	}
 
 	for name, tt := range tests {
