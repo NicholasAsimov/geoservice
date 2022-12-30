@@ -10,6 +10,31 @@ server (mapped to local port 5000).
 ### CSV importer
 `go run ./cmd/importcsv` will start the import process (by default using csv file `data_dump.csv` in the current directory).
 
+### Fake data generator
+`go run ./cmd/generator -file fakedata.csv -records 10000000` will generate a fake CSV file with 10,000,000 records.
+
+Generator writes CSV records directly to disk in a streaming manner so it doesn't allocate any memory
+to hold the records, thus allowing to generate arbitrary file sizes independent of available RAM.
+
+
+## Example usage
+```
+> docker-compose up -d
+[+] Running 4/4
+ ⠿ Network geoservice_default       Created
+ ⠿ Volume "geoservice_data"         Created
+ ⠿ Container geoservice-postgres-1  Started
+ ⠿ Container geoservice-api-1       Started
+
+> go run ./cmd/generator -file data_dump.csv -records 1000000
+INF cmd/generator/main.go:76 > csv generated file=data_dump.csv records=1000000 took=2.468177767s
+
+> go run ./cmd/importcsv
+INF cmd/importcsv/main.go:62 > parsing file file=./data_dump.csv
+INF cmd/importcsv/main.go:73 > persisting to db records=999892
+INF cmd/importcsv/main.go:90 > import finished accepted=999892 db_took=27.75483288s parse_took=2.001588949s records=1000000 skipped=108
+```
+
 
 ## Notable things
 1. csv parsing logic is separated from validation (business) logic by passing in "validationFunc" closure
@@ -55,6 +80,8 @@ GEOSERVICE_PRETTYLOG            True or False    true
 ```
 ├── cmd
 │   ├── api
+│   │   └── main.go
+│   ├── generator
 │   │   └── main.go
 │   └── importcsv
 │       └── main.go

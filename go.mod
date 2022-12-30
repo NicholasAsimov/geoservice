@@ -3,6 +3,7 @@ module github.com/nicholasasimov/geoservice
 go 1.19
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.20.1
 	github.com/georgysavva/scany/v2 v2.0.0-alpha.2
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang-migrate/migrate/v4 v4.15.2
