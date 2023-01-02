@@ -1,5 +1,12 @@
 # geoservice
 
+## Description
+geoservice is a microservice for ingesting and serving geolocation data from a CSV file.
+
+CSV files can be ingested either by using an API endpoint `/api/v1/ingest` or
+by using a CLI utility `importcsv` that imports a local file.
+
+
 ## Running
 
 ### Dependencies and API server
@@ -33,6 +40,13 @@ INF cmd/generator/main.go:76 > csv generated file=data_dump.csv records=1000000 
 INF cmd/importcsv/main.go:62 > parsing file file=./data_dump.csv
 INF cmd/importcsv/main.go:73 > persisting to db records=999892
 INF cmd/importcsv/main.go:90 > import finished accepted=999892 db_took=27.75483288s parse_took=2.001588949s records=1000000 skipped=108
+
+> curl -X POST -F file=@data_dump.csv -D- 'http://localhost:5000/api/v1/ingest'
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 49
+
+{"records":1000000,"accepted":999892,"skipped":108}
 ```
 
 

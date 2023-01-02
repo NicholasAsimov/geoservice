@@ -9,5 +9,7 @@ func (s *Server) Routes() chi.Router {
 
 	r.Get("/geolocation", s.GetGeolocation)
 
+	r.Post("/ingest", s.IngestData)
+
 	return r
 }

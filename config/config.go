@@ -10,6 +10,8 @@ type Configuration struct {
 	Server struct {
 		Addr string `default:"localhost"`
 		Port string `default:"5000"`
+
+		MaxUploadMB int64 `default:"200"`
 	}
 
 	DB struct {
